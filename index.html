@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="styles/style.css" />
     <title>Race Car</title>
   </head>
+
+  <style>
+    canvas {
+      /* border: 1px solid red; */
+    }
+  </style>
   <body>
     <div class="game-intro">
       <img src="./images/logo.png" alt="" class="logo-img" />
@@ -14,6 +20,8 @@
       <button id="start-button">StartGame</button>
       <p>Use the left and right arrow to control the car!</p>
       <img src="./images/arrows.png" alt="" class="arrows-img" />
+      <H2>SCORE = <b id="score">ZERO</b></H2>
+      <h2 id="gameOver"></h2>
     </div>
 
     <div id="game-board">
