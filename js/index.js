@@ -6,6 +6,8 @@ let ctx = canvas.getContext("2d")
 // }
 
 // changes  
+// more changes 
+
 
 let score = 0
 let pewpew = 0
