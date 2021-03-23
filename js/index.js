@@ -1,9 +1,11 @@
 let canvas = document.querySelector("canvas")
 let ctx = canvas.getContext("2d")
 
-// funtion RanNum(min, max) {
+// funtion ranNum(min, max) {
 //   return Math.floor(Math.random() * (max - min + 1) + min);
 // }
+
+// changes  
 
 let score = 0
 let pewpew = 0
@@ -20,6 +22,17 @@ let road = {x: 0, y: 30, w: 500, h: 700, img: roadImg}
 let carImg = new Image()
 carImg.src = "./images/car.png"
 
+//>>>>>>>>>> CHECKS FOR LOCATION OF MOUSE <<<<<<<<
+//document.getElementById('clickme').onclick = function clickEvent(e) {
+
+document.addEventListener('mousemove', e => {
+  gMouseX=e.pageX;
+  gMouseY=e.pageY;
+  // console.log(mX, mY);
+})
+let gShipAngleInRads = 0;
+
+document.getElementById("canvas").style.cursor="url('./images/crosshair.cur'), auto"
 // builds Obstacles
 class Obstacle {
   constructor(x, y, w, h, color) {
@@ -37,6 +50,7 @@ class Obstacle {
         this.y = -100
         this.x = Math.floor(Math.random() * (400 - 1 + 1) + 1)
         this.w = Math.floor(Math.random() * (200 - 50 + 1) + 50)
+        this.color = "red"
       } 
 
     //   >>> THIS IS WHERE I WANT TO CHECK FOR COLLISION  <<< 
@@ -69,10 +83,11 @@ function collisionDetection(rect1, rect2) {
   if (rect1.x < rect2.x + rect2.w &&
     rect1.x + rect1.w > rect2.x &&
     rect1.y < rect2.y + rect2.h &&
-    rect1.y + rect1.h > rect2.y) {
+    rect1.y + rect1.h > rect2.y &&
+    rect1.color != "white") {
       // collision detected!
       document.getElementById("gameOver").innerHTML = "You have now lost your <br> State Farm Safe Driver Discount. <br>GAME OVER"
-      //alert("COLLISION DETECTED. You have now lost your State Farm Safe Driver Discount. GAME OVER")
+      
       cancelAnimationFrame(interval)
     }
 }
@@ -86,8 +101,31 @@ class Car {
     this.h = h
     this.img = img
   }
+
   draw() {
+    //>>>>> THIS IS THE CODE TO ROTATE THE CAR <<<<<
+
+    //>>>>>This code gets the coord of the canvas    
+    let canvasXY = canvas.getBoundingClientRect()
+
+    //>>>>>This code adjusts the coord of the mouse on the page as it relates to the canvas
+    let actualMouseX = gMouseX - canvasXY.x
+    let actualMouseY = gMouseY - canvasXY.y
+
+    //>>>>>>this code calculates the radian for the angle as the mouse location rates to the center of the ship which is the origin 
+    gShipAngleInRads = Math.atan2(actualMouseY-this.y, actualMouseX-this.x)
+    
+    //>>>>>>>This rotates the canvas by the calculated radian + 90 degrees
+    ctx.rotate(gShipAngleInRads + 90 * Math.PI/180)
+    ctx.translate(-250, -350)  //This moves the 0,0 origin of the canvas to the center of the ship/car
+
+    //>>>>>Draws image on rotated canvas
     ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
+
+    //>>>>>>>returns canvas to prior un-rotated state
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    //console.log(gMouseX, gMouseY, gShipAngleInRads, this.x, this.y);
+ 
   }
 }
 
@@ -119,11 +157,11 @@ window.onkeydown = function(e) {
         }
         break;
       case "p":
+        //alert(pewpew);
         pewpew = 1;
-        //alert(pewpew)
         pewx = toyota.x+22;
         pewy = toyota.y-3;
-        break  
+        break; 
     }
 }
 
@@ -131,13 +169,15 @@ function pewpewDetection(rect1) {
   if (rect1.x < pewx + 6 &&
     rect1.x + rect1.w > pewx &&
     rect1.y < pewy + 6 &&
-    rect1.y + rect1.h > pewy) {
+    rect1.y + rect1.h > pewy &&
+    rect1.color != "white") {
       //alert("bullet hit obstacle")
       // collision detected!
-      rect1.x = 0
-      rect1.y = 0
-      rect1.h = 0
-      rect1.w = 0
+      // rect1.x = 0
+      // rect1.y = 0
+      // rect1.h = 0
+      // rect1.w = 0
+      rect1.color = "white"
       pewpew = 0
 
     }
@@ -158,18 +198,28 @@ function pewpewpew () {
 
 let interval = null
 
+
+
+
 //Game engine - constantly looping
 function animate() {
   interval = requestAnimationFrame(animate)
   // console.log("animate")
   ctx.clearRect(0,0,canvas.width, canvas.height)
   ctx.drawImage(roadImg, road.x, road.y, road.w, road.h) 
+
+  ctx.translate(250, 350)
+
   toyota.draw()
   
   obstacle1.draw()
   obstacle2.draw()
   obstacle3.draw()
   obstacle4.draw()
+  // var yy = MouseEvent.screenY
+  // var xx = MouseEvent.screenX
+  // console.log(MouseEvent.screenX)
+  // console.log(MouseEvent.screenY)
 
   pewpewpew()
 
